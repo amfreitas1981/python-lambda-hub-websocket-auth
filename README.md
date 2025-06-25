@@ -42,7 +42,6 @@ Abaixo está o fluxo completo do serviço WebSocket com API Gateway e AWS Lambda
 ---
 
 ## Tecnologias Utilizadas
-
 - **AWS Lambda (Python 3.10)**
 - **Amazon API Gateway (WebSocket)**
 - **Amazon DynamoDB**
@@ -70,11 +69,14 @@ Abaixo está o fluxo completo do serviço WebSocket com API Gateway e AWS Lambda
 
 ## Deploy
 ### Pré-requisitos
-AWS SAM CLI
+1. Instalar o [AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html).
+2. Configurar suas credenciais AWS:
+```bash
+aws configure
+```
 
 ### Passos de Deploy
 ```bash
-aws configure
 sam build
 sam deploy --guided
 ```
@@ -86,6 +88,7 @@ Durante o deploy, você informará:
 * Nome do segredo no Secrets Manager (SIGNING_SECRET_NAME);
 * Endpoint WebSocket (opcional).
 
+---
 
 ## Rotas WebSocket
 
@@ -95,6 +98,7 @@ Durante o deploy, você informará:
 | `$disconnect`  | DisconnectFunction | Remove conexão da tabela                             |
 | `sendMessage`  | MessageFunction    | Envia mensagens para as conexões                     |
 
+---
 
 ## Testes Locais
 Utilizar os eventos de teste disponíveis em events/ com o comando:
@@ -102,9 +106,13 @@ Utilizar os eventos de teste disponíveis em events/ com o comando:
 sam local invoke ConnectFunction --event events/connect.json
 ```
 
+---
+
 ## Especificação Funcional
 ### **Visão Geral**
 O serviço permite a troca de mensagens em tempo real entre usuários conectados a um HUB WebSocket, utilizando AWS Lambda e DynamoDB para persistência e comunicação via API Gateway.
+
+---
 
 ## Funcionalidades
 ### 1. Conexão WebSocket (**_$connect_**)
@@ -123,6 +131,8 @@ O serviço permite a troca de mensagens em tempo real entre usuários conectados
   - MessageFunction busca todos os connection_id relacionados aos session_id fornecidos.
   - Usa o apigatewaymanagementapi para enviar mensagens em tempo real.
 - Objetivo: Disseminar atualizações entre clientes conectados.
+
+---
 
 ## Autenticação e Segurança
 O cliente WebSocket deve enviar os seguintes headers obrigatórios:
@@ -155,6 +165,7 @@ print(signature)
 
 ```
 
+---
 
 ## Estrutura da Tabela DynamoDB
 
@@ -163,6 +174,7 @@ print(signature)
 | session_id    | S    |
 | connection_id | S    |
 
+---
 
 ## Tratamento de Erros e Logs
 - Todas as funções utilizam _try/except_ para tratamento de erros.
@@ -172,6 +184,7 @@ print(signature)
   - 403 – Timestamp inválido ou assinatura incorreta.
   - 500 – Erro interno inesperado.
 
+---
 
 ## Fluxo Arquitetural
 1. O cliente conecta via WebSocket enviando os headers de autenticação.
@@ -179,6 +192,7 @@ print(signature)
 3. **_MessageFunction_** envia mensagens para as conexões relacionadas ao _session_id_.
 4. **_DisconnectFunction_** remove a conexão ao desconectar.
 
+---
 
 ## Monitoramento
 - Logs completos via AWS CloudWatch.
